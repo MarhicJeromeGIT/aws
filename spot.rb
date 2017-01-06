@@ -3,6 +3,7 @@
 require 'aws-sdk'
 require 'deep_merge'
 
+
 def get_client
   Aws::EC2::Client.new({
       region: 'eu-west-1'
@@ -30,7 +31,8 @@ def request_spot(client, extra_params)
     :launch_specification => {
       :image_id => 'ami-2a0c2a59',
       :instance_type => 'g2.2xlarge',
-      :key_name => 'bandanatech'
+      :key_name => 'bandanatech',
+      :security_groups => ['gaming']
     }
   }
   params = extra_params.deep_merge(default_params)
@@ -40,9 +42,9 @@ end
 
 client = get_client
 response = request_spot client, {
-  :spot_price => '0.01',
-  :launch_specification => {
-    :image_id => 'ami-89fed0fa'
+  :spot_price => '0.8',
+ :launch_specification => {
+    :image_id => 'ami-bc725bcf' # Windows Gaming Working
   } 
 }
 puts response
