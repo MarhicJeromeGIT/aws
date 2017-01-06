@@ -9,6 +9,21 @@ def get_client
   })
 end
 
+def request_ondemand(client, extra_params)
+  resource = Aws::EC2::Resource.new(client: client)
+  default_params = {
+    dry_run: true,
+    image_id: 'ami-89fed0fa',
+    min_count: 1,
+    max_count: 1,
+    key_name: 'bandanatech',
+    security_group_ids: ['sg-457e0023'],
+    instance_type: 'g2.2xlarge'
+  }
+  params = extra_params.deep_merge(default_params)
+  resource.create_instances(params)
+end
+
 #extra_params a hash that will be merged with the default params
 def request_spot(client, extra_params)
   default_params = {
@@ -24,10 +39,24 @@ def request_spot(client, extra_params)
 end
 
 client = get_client
-#response = request_spot client, {
-#  :spot_price => '0.10' 
-#}
-#puts response
+response = request_spot client, {
+  :spot_price => '0.01',
+  :launch_specification => {
+    :image_id => 'ami-89fed0fa'
+  } 
+}
+puts response
 
-puts client
-puts client.describe_reserved_instances_offerings
+#puts client
+#pAuts client.describe_reserved_instances_offerings
+
+#instance = request_ondemand(client, {})
+#puts instance
+
+# Wait for the instance to be created, running, and passed status checks
+#client.wait_until(:instance_status_ok, {instance_ids: [instance[0].id]})
+# Name the instance 'MyGroovyInstance' and give it the Group tag 'MyGroovyGroup'
+#instance.create_tags({ tags: [{ key: 'Name', value: 'MyGroovyInstance' }, { key: 'Group', value: 'MyGroovyGroup' }]})
+#puts instance.id
+#puts instance.public_ip_address
+
